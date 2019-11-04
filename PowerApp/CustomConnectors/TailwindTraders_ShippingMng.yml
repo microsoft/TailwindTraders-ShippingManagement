@@ -1,0 +1,88 @@
+swagger: '2.0'
+info: {title: TailwindTraders_ShippingMng, description: Scan shipping orders for TailwindTraders
+    inv app, version: '1.0'}
+host: tailwindtradersfunctionpro.azurewebsites.net
+basePath: /api/
+schemes: [https]
+consumes: [application/json]
+produces: [application/json]
+paths:
+  /Scan:
+    post:
+      responses:
+        default:
+          description: default
+          schema:
+            type: object
+            properties:
+              statusCode: {type: integer, format: int32, description: statusCode}
+              data:
+                type: object
+                properties:
+                  ID: {type: integer, format: int32, description: ID}
+                  Reference: {type: string, description: Reference}
+                  Date: {type: string, description: Date}
+                  ReceivedBy: {type: string, description: ReceivedBy}
+                  Customer: {type: string, description: Customer}
+                  Amount: {type: string, description: Amount}
+                  SentBy: {type: string, description: SentBy}
+                  Location: {type: string, description: Location}
+                  LocationMatchs: {type: boolean, description: LocationMatchs}
+                  Products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID: {type: integer, format: int32, description: ID}
+                        HasPotentialErrors: {type: boolean, description: HasPotentialErrors}
+                        Reference:
+                          type: object
+                          properties:
+                            Value: {type: string, description: Value}
+                            Accuracy: {type: integer, format: float, description: Accuracy}
+                          description: Reference
+                        Description:
+                          type: object
+                          properties:
+                            Value: {type: string, description: Value}
+                            Accuracy: {type: number, format: float, description: Accuracy}
+                          description: Description
+                        Quantity:
+                          type: object
+                          properties:
+                            Value: {type: string, description: Value}
+                            Accuracy: {type: number, format: float, description: Accuracy,
+                              title: ''}
+                          description: Quantity
+                        AmountItem:
+                          type: object
+                          properties:
+                            Value: {type: string, description: Value}
+                            Accuracy: {type: number, format: float, description: Accuracy}
+                          description: AmountItem
+                        Amount:
+                          type: object
+                          properties:
+                            Value: {type: string, description: Value}
+                            Accuracy: {type: number, format: float, description: Accuracy}
+                          description: Amount
+                    description: Products
+                description: data
+      summary: Scan
+      operationId: Scan
+      description: Analyze image with form recognizer and returns order model object.
+      parameters:
+      - name: body
+        in: body
+        required: false
+        schema:
+          type: object
+          properties:
+            source: {type: string, description: source}
+            currentLocation: {type: string, description: currentLocation}
+definitions: {}
+parameters: {}
+responses: {}
+securityDefinitions: {}
+security: []
+tags: []

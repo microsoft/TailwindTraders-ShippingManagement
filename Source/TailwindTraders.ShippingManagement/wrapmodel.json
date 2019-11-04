@@ -1,0 +1,80 @@
+{
+  "keys": [
+    {
+      "key": "Date:",
+      "property": "Date",
+      "keypos": 0,
+      "keyvalue": 0,
+      "type": "string"
+    },
+    {
+      "key": "Sent By:",
+      "property": "Provider",
+      "keypos": 0,
+      "keyvalue": 0,
+      "type": "string"
+    },
+    {
+      "key": "Ship To:",
+      "property": "Customer",
+      "keypos": 0,
+      "keyvalue": 0,
+      "type": "string"
+    },
+    {
+      "key": "Ship To:",
+      "property": "Location",
+      "keypos": 0,
+      "keyvalue": 1,
+      "type": "string"
+    },
+    {
+      "key": "Order Reference",
+      "property": "Reference",
+      "keypos": 0,
+      "keyvalue": 0,
+      "type": "string"
+    },
+    {
+      "key": "Received By",
+      "property": "ReceivedBy",
+      "keypos": 0,
+      "keyvalue": 0,
+      "type": "string"
+    },
+    {
+      "key": "TOTAL BOXES",
+      "keypos": 0,
+      "keyvalue": 0,
+      "property": "Boxes",
+      "type": "int"
+    }
+  ],
+  "tables": [
+    {
+      "id": 0,
+      "headers": [
+        {
+          "key": "Item #",
+          "property": "Reference",
+          "type": "string"
+        },
+        {
+          "key": "Description",
+          "property": "Description",
+          "type": "string"
+        },
+        {
+          "key": "Quantity",
+          "property": "Quantity",
+          "type": "int"
+        },
+        {
+          "key": "Amount",
+          "property": "Amount",
+          "type": "decimal"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,518 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroup": {
+            "type": "string",
+            "defaultValue": "tailwind",
+            "metadata": {
+                "description": "The name of your resource group where all infrastructure will be created."
+            }	
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "East US",
+            "metadata": {
+                "description": "Select where you want to create your resource group. (i.e., East US)."
+            }	
+        },
+        "resourcePrefixName": {
+                "type": "string",
+                "defaultValue": "tailwind",
+                "metadata": {
+                    "description": "The name to refer the resources to be deployed."
+                }	
+        },
+        "throughput": {
+            "type": "int",
+            "defaultValue": 400,
+            "minValue": 400,
+            "maxValue": 1000000,
+            "metadata": {
+                "description": "The throughput for the Cosmos Database."
+            }			
+        }
+    },
+    "variables": {
+      "functionAppName": "[concat(parameters('resourcePrefixName'),'function', uniqueString(resourceGroup().id))]",
+      "hostingPlanName": "[concat(parameters('resourcePrefixName'),'hostingplan', uniqueString(resourceGroup().id))]",
+      "applicationInsightsName": "[concat(parameters('resourcePrefixName'),'insights', uniqueString(resourceGroup().id))]",
+      "functionWorkerRuntime": "dotnet",
+  
+      "storageAccountName": "[concat(parameters('resourcePrefixName'),'st', uniqueString(resourceGroup().id))]",
+      "storageContainerName": "[concat(parameters('resourcePrefixName'),'-trainmodel')]",
+  
+      "formRecognizerName": "[concat(parameters('resourcePrefixName'), 'formrecognizer', uniqueString(resourceGroup().id))]",
+      "formRecognizedSubscriptionKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "formRecognizedEndPoint": "[concat('https://', variables('formRecognizerName'), '.cognitiveservices.azure.com/')]",
+      "FormRecognizedTrainningDataUrl": "[concat('https://', variables('storageAccountName'),'.blob.core.windows.net/', variables('storageContainerName'))]",
+      "formRecognizedMinAccuracyAllowed": 0.6,
+
+      "logicAppName": "[concat(parameters('resourcePrefixName'), 'logicapp', uniqueString(resourceGroup().id))]",
+      "accountName": "[concat(parameters('resourcePrefixName'),'cosmos', uniqueString(resourceGroup().id))]",
+      "databaseName": "ShipmentManagement",
+      "containerName": "PackageSlips",
+      "partitionKey": "/Provider",
+      "consistencyPolicy": {
+          "Eventual": {
+              "defaultConsistencyLevel": "Eventual"
+          }
+      }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[variables('hostingPlanName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "EP1",
+                "tier": "ElasticPremium",
+                "size": "EP1",
+                "family": "EP",
+                "capacity": 1
+            },
+            "kind": "elastic",
+            "properties": {
+                "name": "[variables('hostingPlanName')]",
+                "perSiteScaling": false,
+                "reserved": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+        }
+        },
+        {
+            "name": "[variables('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2018-07-01",
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "accessTier": "Hot"
+            },
+            "resources": [
+                {
+                    "name": "[concat('default/', variables('storageContainerName'))]",
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "dependsOn": [
+                        "[variables('storageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "Container"
+                    }
+                }
+            ]
+        },
+        {
+        "type": "Microsoft.CognitiveServices/accounts",
+        "apiVersion": "2017-04-18",
+        "name": "[variables('formRecognizerName')]",
+        "location": "[resourceGroup().location]",
+        "sku": {
+            "name": "S0"
+        },
+        "kind": "FormRecognizer",
+        "properties": {
+            "customSubDomainName": "[variables('formRecognizerName')]"
+        }
+        },
+        {
+        "apiVersion": "2015-08-01",
+        "type": "Microsoft.Web/sites",
+        "name": "[variables('functionAppName')]",
+        "location": "[resourceGroup().location]",
+        "kind": "functionapp",
+        "dependsOn": [
+            "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+            "[resourceId('Microsoft.CognitiveServices/accounts', variables('formRecognizerName'))]"
+        ],
+        "properties": {
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+            "siteConfig": {
+            "appSettings": [
+                {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~2"
+                },
+                {
+                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                },
+                {
+                "name": "FUNCTIONS_WORKER_RUNTIME",
+                "value": "[variables('functionWorkerRuntime')]"
+                },
+                {
+                "name": "FormRecognizedEndPoint",
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/', variables('formRecognizerName')), '2017-04-18').endpoint]"
+                },
+                {
+                "name": "FormRecognizedSubscriptionKey",
+                "value": "[variables('formRecognizedSubscriptionKey')]"
+                },
+                {
+                "name": "FormRecognizedTrainningDataUrl",
+                "value": "[variables('formRecognizedTrainningDataUrl')]"
+                },
+                {
+                "name": "FormRecognizedMinAccuracyAllowed",
+                "value": "[variables('formRecognizedMinAccuracyAllowed')]"
+                }
+            ]
+            }
+        }
+        },
+        {
+        "apiVersion": "2018-05-01-preview",
+        "name": "[variables('applicationInsightsName')]",
+        "type": "microsoft.insights/components",
+        "location": "[resourceGroup().location]",
+        "properties": {
+            "ApplicationId": "[variables('applicationInsightsName')]"
+        }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "name": "[variables('accountName')]",
+            "apiVersion": "2016-03-31",
+            "location": "[resourceGroup().location]",
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "locations": [
+                    {
+                        "locationName": "[resourceGroup().location]"
+                    }
+                    ],
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": false,
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session",
+                    "maxIntervalInSeconds": 5,
+                    "maxStalenessPrefix": 100
+                }			
+            }
+            },
+        {
+                "type": "Microsoft.DocumentDB/databaseAccounts/apis/databases",
+                "name": "[concat(variables('accountName'), '/sql/', variables('databaseName'))]",
+                "apiVersion": "2016-03-31",
+                "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/', variables('accountName'))]" ],
+                "properties":{
+                    "resource":{
+                        "id": "[variables('databaseName')]"
+                    },
+                    "options": { "throughput": "[parameters('throughput')]" }
+                }
+        },
+        {
+            "type": "Microsoft.DocumentDb/databaseAccounts/apis/databases/containers",
+            "name": "[concat(variables('accountName'), '/sql/', variables('databaseName'), '/', variables('containerName'))]",
+            "apiVersion": "2016-03-31",
+            "dependsOn": [ "[resourceId('Microsoft.DocumentDB/databaseAccounts/apis/databases', variables('accountName'), 'sql', variables('databaseName'))]" ],
+            "properties":
+            {
+                "resource":{
+                    "id":  "[variables('containerName')]",
+                    "partitionKey": {
+                        "paths": [
+                            "[variables('partitionKey')]"
+                        ],
+                        "kind": "Hash"
+                    },
+                    "indexingPolicy": {
+                        "indexingMode": "consistent",
+                        "includedPaths": [{
+                                "path": "/*"
+                            }
+                        ],
+                        "excludedPaths": [{
+                                "path": "/Items/*"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "name": "cosmosconnection",
+            "properties": {
+                "api": {
+                    "id": "[concat('subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/documentdb')]"
+                },
+                "displayName": "cosmosconnection",
+                "parameterValues": {
+                    "databaseAccount": "[variables('accountName')]",
+                    "accessKey": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2016-03-31').primaryMasterKey]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[variables('logicAppName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "staticResults": {
+                        "Create_record0": {
+                            "status": "Succeeded",
+                            "outputs": {
+                                "headers": {},
+                                "statusCode": "OK"
+                            }
+                        },
+                        "Send_sender_a_confirmation_email1": {
+                            "status": "Succeeded",
+                            "outputs": {
+                                "headers": {},
+                                "statusCode": "OK"
+                            }
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "Amount": {
+                                            "type": "integer"
+                                        },
+                                        "Boxes": {
+                                            "type": "integer"
+                                        },
+                                        "Customer": {
+                                            "type": "string"
+                                        },
+                                        "Date": {
+                                            "type": "string"
+                                        },
+                                        "Items": {
+                                            "items": {
+                                                "properties": {
+                                                    "Amount": {
+                                                        "properties": {
+                                                            "Accuracy": {
+                                                                "type": "number"
+                                                            },
+                                                            "Value": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "Description": {
+                                                        "properties": {
+                                                            "Accuracy": {
+                                                                "type": "number"
+                                                            },
+                                                            "Value": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "HasPotentialErrors": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "ID": {
+                                                        "type": "integer"
+                                                    },
+                                                    "Quantity": {
+                                                        "properties": {
+                                                            "Accuracy": {
+                                                                "type": "number"
+                                                            },
+                                                            "Value": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "Reference": {
+                                                        "properties": {
+                                                            "Accuracy": {
+                                                                "type": "number"
+                                                            },
+                                                            "Value": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "ID",
+                                                    "HasPotentialErrors",
+                                                    "Reference",
+                                                    "Description",
+                                                    "Quantity",
+                                                    "Amount"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "Location": {
+                                            "type": "string"
+                                        },
+                                        "Provider": {
+                                            "type": "string"
+                                        },
+                                        "ReceivedBy": {
+                                            "type": "string"
+                                        },
+                                        "Reference": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Create_or_update_document": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@triggerBody()",
+                                "headers": {
+                                    "x-ms-documentdb-is-upsert": true,
+                                    "x-ms-documentdb-raw-partitionkey": "\"@{triggerBody()?['Provider']}\""
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/dbs/@{encodeURIComponent('ShipmentManagement')}/colls/@{encodeURIComponent('PackageSlips')}/docs"
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "Create_or_update_document": [
+                                    "Failed",
+                                    "Skipped",
+                                    "TimedOut"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@{body('Create_or_update_document')} ",
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Response_Error": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "message": "@body('Parse_JSON')?['code']",
+                                    "statusCode": "@outputs('Create_or_update_document')['statusCode']"
+                                },
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "statusCode": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "statusCode": 400
+                            }
+                        },
+                        "Response_Success": {
+                            "runAfter": {
+                                "Create_or_update_document": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": {
+                                    "message": "",
+                                    "statusCode": "@outputs('Create_or_update_document')['statusCode']"
+                                },
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "statusCode": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "documentdb": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', 'cosmosconnection')]",
+                                "connectionName": "documentdb",
+                                "id": "[concat('subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/documentdb')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]",
+                "[resourceId('Microsoft.Web/connections', 'cosmosconnection')]"
+            ]
+        }
+    ]
+}

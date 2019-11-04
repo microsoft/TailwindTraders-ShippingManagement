@@ -1,0 +1,85 @@
+swagger: '2.0'
+info: {title: TailwindTraders_UpdateOrder, description: Create or update item in AzureSQL
+    Shipment Order Database., version: '1.0'}
+host: prod-33.eastus.logic.azure.com
+basePath: /
+schemes: [https]
+consumes: [application/json]
+produces: [application/json]
+paths:
+  /workflows/fe7142204bc04c57b2fd01440372e60d/triggers/manual/paths/invoke:
+    post:
+      responses:
+        default:
+          description: default
+          schema:
+            type: object
+            properties:
+              statusCode: {type: integer, format: int32, description: statusCode,
+                title: StatusCode}
+              message: {type: string, description: message, title: Message}
+      summary: Run
+      description: Create or update shipment order in Azure SQL.
+      operationId: Run
+      parameters:
+      - {name: api-version, in: query, required: true, type: string, default: '2016-10-01',
+        x-ms-visibility: internal}
+      - {name: sp, in: query, required: true, type: string, default: /triggers/manual/run,
+        x-ms-visibility: internal}
+      - {name: sv, in: query, required: true, type: string, default: '1.0', x-ms-visibility: internal}
+      - {name: sig, in: query, required: true, type: string, default: b0f0DCjfhM5tSU_ZwuJ1rwncAyOCwlP8KuzaQSYYi90,
+        x-ms-visibility: internal}
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            Amount: {type: integer, format: int32, description: Amount}
+            Boxes: {type: integer, format: int32, description: Boxes}
+            Customer: {type: string, description: Customer}
+            Date: {type: string, description: Date}
+            Items:
+              type: array
+              items:
+                type: object
+                properties:
+                  Amount:
+                    type: object
+                    properties:
+                      Accuracy: {type: number, format: float, description: Accuracy}
+                      Value: {type: string, description: Value}
+                    description: Amount
+                  Description:
+                    type: object
+                    properties:
+                      Accuracy: {type: number, format: float, description: Accuracy}
+                      Value: {type: string, description: Value}
+                    description: Description
+                  HasPotentialErrors: {type: boolean, description: HasPotentialErrors}
+                  ID: {type: integer, format: int32, description: ID}
+                  Quantity:
+                    type: object
+                    properties:
+                      Accuracy: {type: number, format: float, description: Accuracy}
+                      Value: {type: string, description: Value}
+                    description: Quantity
+                  Reference:
+                    type: object
+                    properties:
+                      Accuracy: {type: number, format: float, description: Accuracy}
+                      Value: {type: string, description: Value}
+                    description: Reference
+              description: Items
+            Location: {type: string, description: Location}
+            LocationMatchs: {type: boolean, description: LocationMatchs}
+            Provider: {type: string, description: Provider}
+            ReceivedBy: {type: string, description: ReceivedBy}
+            Reference: {type: string, description: Reference}
+            id: {type: string, description: id}
+definitions: {}
+parameters: {}
+responses: {}
+securityDefinitions: {}
+security: []
+tags: []
