@@ -3,7 +3,8 @@
 Param(
     [parameter(Mandatory=$true)][string]$resourceGroup,
     [parameter(Mandatory=$true)][string]$storageName,
-    [parameter(Mandatory=$true)][string]$containerName
+    [parameter(Mandatory=$true)][string]$containerName,
+    [parameter(Mandatory=$true)][string]$containerNameProducts
 )
 
 $storage = $(az storage account show -n $storageName -g $resourceGroup -o json | ConvertFrom-Json)
@@ -28,9 +29,12 @@ $accountName=$storage.name
 Push-Location $($MyInvocation.InvocationName | Split-Path)
 Push-Location ..
 
-#Upload form recognized test model images
 Write-Host "Uploading images to $containerName" -ForegroundColor Yellow
 az storage blob upload-batch --destination "$urlBlbsContainer" --source $(Join-Path tailwindtraders-files form-recognized-dataset) --account-name $storageName
+Write-Host "Images uploaded..."
+
+Write-Host "Uploading images to $containerNameProducts" -ForegroundColor Yellow
+az storage blob upload-batch --destination "$urlBlbsContainer" --source $(Join-Path tailwindtraders-files tailwindtraders-products) --account-name $storageName
 Write-Host "Images uploaded..."
 
 Pop-Location
