@@ -1,0 +1,446 @@
+{
+  "name": "",
+  "fields": [
+    {
+      "name": "Amount",
+      "type": "Edm.Int64",
+      "facetable": false,
+      "filterable": true,
+      "retrievable": true,
+      "sortable": false,
+      "analyzer": null,
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Boxes",
+      "type": "Edm.Int64",
+      "facetable": false,
+      "filterable": true,
+      "retrievable": true,
+      "sortable": false,
+      "analyzer": null,
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Customer",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Date",
+      "type": "Edm.DateTimeOffset",
+      "facetable": false,
+      "filterable": true,
+      "retrievable": true,
+      "sortable": false,
+      "analyzer": null,
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Items",
+      "type": "Collection(Edm.ComplexType)",
+      "analyzer": null,
+      "synonymMaps": [],
+      "fields": [
+        {
+          "name": "OCRText",
+          "type": "Collection(Edm.String)",
+          "facetable": false,
+          "filterable": false,
+          "retrievable": true,
+          "searchable": true,
+          "analyzer": null,
+          "indexAnalyzer": null,
+          "searchAnalyzer": null,
+          "synonymMaps": [],
+          "fields": []
+        },
+        {
+          "name": "Tags",
+          "type": "Collection(Edm.ComplexType)",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "name",
+              "type": "Edm.String",
+              "facetable": false,
+              "filterable": false,
+              "key": false,
+              "retrievable": true,
+              "searchable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "confidence",
+              "type": "Edm.Double",
+              "facetable": false,
+              "filterable": false,
+              "retrievable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "VisualDetail",
+          "type": "Edm.ComplexType",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "tags",
+              "type": "Collection(Edm.String)",
+              "facetable": false,
+              "filterable": false,
+              "retrievable": true,
+              "searchable": true,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "captions",
+              "type": "Collection(Edm.ComplexType)",
+              "analyzer": null,
+              "synonymMaps": [],
+              "fields": [
+                {
+                  "name": "text",
+                  "type": "Edm.String",
+                  "facetable": false,
+                  "filterable": false,
+                  "key": false,
+                  "retrievable": true,
+                  "searchable": true,
+                  "sortable": false,
+                  "analyzer": null,
+                  "indexAnalyzer": null,
+                  "searchAnalyzer": null,
+                  "synonymMaps": [],
+                  "fields": []
+                },
+                {
+                  "name": "confidence",
+                  "type": "Edm.Double",
+                  "facetable": false,
+                  "filterable": false,
+                  "retrievable": true,
+                  "sortable": false,
+                  "analyzer": null,
+                  "indexAnalyzer": null,
+                  "searchAnalyzer": null,
+                  "synonymMaps": [],
+                  "fields": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Amount",
+          "type": "Edm.ComplexType",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "Accuracy",
+              "type": "Edm.Double",
+              "facetable": false,
+              "filterable": true,
+              "retrievable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "Value",
+              "type": "Edm.String",
+              "facetable": false,
+              "filterable": true,
+              "key": false,
+              "retrievable": true,
+              "searchable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "Description",
+          "type": "Edm.ComplexType",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "Accuracy",
+              "type": "Edm.Double",
+              "facetable": false,
+              "filterable": true,
+              "retrievable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "Value",
+              "type": "Edm.String",
+              "facetable": false,
+              "filterable": true,
+              "key": false,
+              "retrievable": true,
+              "searchable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "HasPotentialErrors",
+          "type": "Edm.Boolean",
+          "facetable": false,
+          "filterable": true,
+          "retrievable": true,
+          "sortable": false,
+          "analyzer": null,
+          "indexAnalyzer": null,
+          "searchAnalyzer": null,
+          "synonymMaps": [],
+          "fields": []
+        },
+        {
+          "name": "ID",
+          "type": "Edm.Int64",
+          "facetable": false,
+          "filterable": true,
+          "retrievable": true,
+          "sortable": false,
+          "analyzer": null,
+          "indexAnalyzer": null,
+          "searchAnalyzer": null,
+          "synonymMaps": [],
+          "fields": []
+        },
+        {
+          "name": "Quantity",
+          "type": "Edm.ComplexType",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "Accuracy",
+              "type": "Edm.Double",
+              "facetable": false,
+              "filterable": true,
+              "retrievable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "Value",
+              "type": "Edm.String",
+              "facetable": false,
+              "filterable": true,
+              "key": false,
+              "retrievable": true,
+              "searchable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            }
+          ]
+        },
+        {
+          "name": "Reference",
+          "type": "Edm.ComplexType",
+          "analyzer": null,
+          "synonymMaps": [],
+          "fields": [
+            {
+              "name": "Accuracy",
+              "type": "Edm.Double",
+              "facetable": false,
+              "filterable": true,
+              "retrievable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            },
+            {
+              "name": "Value",
+              "type": "Edm.String",
+              "facetable": false,
+              "filterable": true,
+              "key": false,
+              "retrievable": true,
+              "searchable": true,
+              "sortable": false,
+              "analyzer": null,
+              "indexAnalyzer": null,
+              "searchAnalyzer": null,
+              "synonymMaps": [],
+              "fields": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Location",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "LocationMatchs",
+      "type": "Edm.Boolean",
+      "facetable": false,
+      "filterable": true,
+      "retrievable": true,
+      "sortable": false,
+      "analyzer": null,
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Provider",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "ReceivedBy",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "Reference",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "id",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": false,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    },
+    {
+      "name": "rid",
+      "type": "Edm.String",
+      "facetable": false,
+      "filterable": true,
+      "key": true,
+      "retrievable": true,
+      "searchable": true,
+      "sortable": false,
+      "analyzer": "standard.lucene",
+      "indexAnalyzer": null,
+      "searchAnalyzer": null,
+      "synonymMaps": [],
+      "fields": []
+    }
+  ]
+}

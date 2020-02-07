@@ -1,4 +1,5 @@
-Param(
+#! /usr/bin/pwsh
+param(
     [parameter(Mandatory=$true)][string]$resourceGroup,
     [parameter(Mandatory=$true)][string]$location,
     [parameter(Mandatory=$true)][string]$resourcePrefixName,
@@ -18,9 +19,10 @@ Push-Location Scripts
 
 $storageName = $(az resource list --resource-group $resourceGroup --resource-type Microsoft.Storage/storageAccounts -o json | ConvertFrom-Json)[0].name
 $containerName = "$resourcePrefixName-trainmodel"
+$containerNameProducts = "$resourcePrefixName-products"
 $appFunctionName = $(az resource list --resource-group $resourceGroup --resource-type Microsoft.Web/sites -o json | ConvertFrom-Json)[0].name
 
-& ./Deploy-Publish-Content.ps1 -resourceGroup $resourceGroup -storageName $storageName -containerName $containerName -appFunctionName $appFunctionName
+& ./Deploy-Publish-Content.ps1 -resourceGroup $resourceGroup -storageName $storageName -containerName $containerName -containerNameProducts $containerNameProducts -appFunctionName $appFunctionName
 
 Pop-Location
 Pop-Location

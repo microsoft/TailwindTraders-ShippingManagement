@@ -1,0 +1,17 @@
+{
+  "name": "",
+  "dataSourceName": "",
+  "targetIndexName": "",
+  "skillsetName": "",
+  "outputFieldMappings" : [
+    {
+      "sourceFieldName": "/document/ImageAnalysis",
+      "targetFieldName": "Items"
+    }
+  ],
+  "parameters":
+  {
+    "maxFailedItems":-1,
+    "maxFailedItemsPerBatch":-1
+  }
+}

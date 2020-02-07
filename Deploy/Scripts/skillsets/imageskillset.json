@@ -1,0 +1,31 @@
+{
+  "name": "",
+  "description": "Skillset",
+  "skills": [
+    {
+      "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+      "description": "Custom skill for generate image analysis from CosmosDB",
+      "uri": "",
+      "batchSize":1,
+      "timeout": "PT230S",
+      "context": "/document",
+      "inputs": [
+        {
+          "name": "content",
+          "source": "/document"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Items",
+          "targetName": "ImageAnalysis"
+        }
+      ]
+    }
+  ],
+  "cognitiveServices": {
+    "@odata.type": "#Microsoft.Azure.Search.CognitiveServicesByKey",
+    "description": "",
+    "key": ""
+  }
+}

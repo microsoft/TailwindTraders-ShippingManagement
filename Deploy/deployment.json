@@ -34,52 +34,209 @@
         }
     },
     "variables": {
-      "functionAppName": "[concat(parameters('resourcePrefixName'),'function', uniqueString(resourceGroup().id))]",
-      "hostingPlanName": "[concat(parameters('resourcePrefixName'),'hostingplan', uniqueString(resourceGroup().id))]",
-      "applicationInsightsName": "[concat(parameters('resourcePrefixName'),'insights', uniqueString(resourceGroup().id))]",
-      "functionWorkerRuntime": "dotnet",
-  
-      "storageAccountName": "[concat(parameters('resourcePrefixName'),'st', uniqueString(resourceGroup().id))]",
-      "storageContainerName": "[concat(parameters('resourcePrefixName'),'-trainmodel')]",
-  
-      "formRecognizerName": "[concat(parameters('resourcePrefixName'), 'formrecognizer', uniqueString(resourceGroup().id))]",
-      "formRecognizedSubscriptionKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      "formRecognizedEndPoint": "[concat('https://', variables('formRecognizerName'), '.cognitiveservices.azure.com/')]",
-      "FormRecognizedTrainningDataUrl": "[concat('https://', variables('storageAccountName'),'.blob.core.windows.net/', variables('storageContainerName'))]",
-      "formRecognizedMinAccuracyAllowed": 0.6,
+        "azsearchname": "[concat(parameters('resourcePrefixName'),'search', uniqueString(resourceGroup().id))]",
+        "cognitiveservicename": "[concat(parameters('resourcePrefixName'),'cs', uniqueString(resourceGroup().id))]",
+        
+        "functionAppName": "[concat(parameters('resourcePrefixName'),'function', uniqueString(resourceGroup().id))]",
+        "functionAppNameLinux": "[concat(parameters('resourcePrefixName'),'functionlinux', uniqueString(resourceGroup().id))]",
+        "functionCustomSkillAppName": "[concat(parameters('resourcePrefixName'),'functionskill', uniqueString(resourceGroup().id))]",
+        "hostingPlanName": "[concat(parameters('resourcePrefixName'),'hostingplan', uniqueString(resourceGroup().id))]",
+        "applicationInsightsName": "[concat(parameters('resourcePrefixName'),'insights', uniqueString(resourceGroup().id))]",
+        "functionWorkerRuntime": "dotnet",
+        "functionLinuxWorkerRuntime": "python",
+    
+        "storageAccountName": "[concat(parameters('resourcePrefixName'),'st', uniqueString(resourceGroup().id))]",
+        "storageContainerName": "[concat(parameters('resourcePrefixName'),'-trainmodel')]",
+        "storageProductsContainerName": "[concat(parameters('resourcePrefixName'),'-products')]",
+    
+        "formRecognizerName": "[concat(parameters('resourcePrefixName'), 'formrecognizer', uniqueString(resourceGroup().id))]",
+        "formRecognizedSubscriptionKey": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "formRecognizedEndPoint": "[concat('https://', variables('formRecognizerName'), '.cognitiveservices.azure.com/')]",
+        "FormRecognizedTrainningDataUrl": "[concat('https://', variables('storageAccountName'),'.blob.core.windows.net/', variables('storageContainerName'))]",
+        "formRecognizedMinAccuracyAllowed": 0.6,
 
-      "logicAppName": "[concat(parameters('resourcePrefixName'), 'logicapp', uniqueString(resourceGroup().id))]",
-      "accountName": "[concat(parameters('resourcePrefixName'),'cosmos', uniqueString(resourceGroup().id))]",
-      "databaseName": "ShipmentManagement",
-      "containerName": "PackageSlips",
-      "partitionKey": "/Provider",
-      "consistencyPolicy": {
-          "Eventual": {
-              "defaultConsistencyLevel": "Eventual"
-          }
-      }
+        "logicAppName": "[concat(parameters('resourcePrefixName'), 'logicapp', uniqueString(resourceGroup().id))]",
+        "accountName": "[concat(parameters('resourcePrefixName'),'cosmos', uniqueString(resourceGroup().id))]",
+        "databaseName": "ShipmentManagement",
+        "containerName": "PackageSlips",
+        "partitionKey": "/Provider",
+        "consistencyPolicy": {
+            "Eventual": {
+                "defaultConsistencyLevel": "Eventual"
+            }
+        }
     },
     "resources": [
         {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2018-02-01",
-            "name": "[variables('hostingPlanName')]",
+            "type": "Microsoft.CognitiveServices/accounts",
+            "apiVersion": "2017-04-18",
+            "name": "[variables('formRecognizerName')]",
             "location": "[resourceGroup().location]",
             "sku": {
-                "name": "EP1",
-                "tier": "ElasticPremium",
-                "size": "EP1",
-                "family": "EP",
-                "capacity": 1
+                "name": "S0"
             },
-            "kind": "elastic",
+            "kind": "FormRecognizer",
+            "properties": {
+                "customSubDomainName": "[variables('formRecognizerName')]"
+            }
+        },
+        {
+            "type": "Microsoft.CognitiveServices/accounts",
+            "apiVersion": "2017-04-18",
+            "name": "[variables('cognitiveservicename')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "S0"
+            },
+            "kind": "CognitiveServices",
+            "properties": {
+                "apiProperties": {
+                    "statisticsEnabled": false
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('functionAppName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('formRecognizerName'))]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "siteConfig": {
+                    "reserved": true,
+                    "AlwaysOn": true,
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "[variables('functionWorkerRuntime')]"
+                        },
+                        {
+                            "name": "FormRecognizedEndPoint",
+                            "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/', variables('formRecognizerName')), '2017-04-18').endpoint]"
+                        },
+                        {
+                            "name": "FormRecognizedSubscriptionKey",
+                            "value": "[variables('formRecognizedSubscriptionKey')]"
+                        },
+                        {
+                            "name": "FormRecognizedTrainningDataUrl",
+                            "value": "[variables('formRecognizedTrainningDataUrl')]"
+                        },
+                        {
+                            "name": "FormRecognizedMinAccuracyAllowed",
+                            "value": "[variables('formRecognizedMinAccuracyAllowed')]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "apiVersion": "2015-08-01",
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('functionAppNameLinux')]",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp,linux",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('formRecognizerName'))]"
+            ],
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+                "siteConfig": {
+                    "reserved": true,
+                    "AlwaysOn": true,
+                    "appSettings": [
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~3"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "[variables('functionLinuxWorkerRuntime')]"
+                        },
+                        {
+                            "name": "STORAGE_ACCOUNTNAME",
+                            "value": "[variables('storageAccountName')]"
+                        },
+                        {
+                            "name": "STORAGE_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                        },
+                        {
+                            "name": "STORAGE_CONTAINER_NAME",
+                            "value": "[variables('storageProductsContainerName')]"
+                        },
+                        {
+                            "name": "COMPUTERVISION_KEY",
+                            "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveservicename')), providers('Microsoft.CognitiveServices', 'accounts').apiVersions[0]).key1]"
+                        },
+                        {
+                            "name": "COMPUTERVISION_ENDPOINT",
+                            "value": "[concat(reference(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveservicename')), providers('Microsoft.CognitiveServices', 'accounts').apiVersions[0]).endpoint, 'vision/v2.1/')]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Search/searchServices",
+            "apiVersion": "2015-08-19",
+            "name": "[variables('azsearchname')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "standard"
+            },
+            "properties": {
+                "replicaCount": 1,
+                "partitionCount": 1,
+                "hostingMode": "Default"
+            }
+        },
+        {
+            "apiVersion": "2018-11-01",
+            "name": "[variables('hostingPlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "kind": "linux",
             "properties": {
                 "name": "[variables('hostingPlanName')]",
-                "perSiteScaling": false,
-                "reserved": false,
-                "targetWorkerCount": 0,
-                "targetWorkerSizeId": 0
-        }
+                "workerSize": 3,
+                "workerSizeId": 3,
+                "numberOfWorkers": 1,
+                "reserved": true,
+                "hostingEnvironment": ""
+            },
+            "sku": {
+                "Tier": "PremiumV2",
+                "Name": "P1v2"
+            }
         },
         {
             "name": "[variables('storageAccountName')]",
@@ -105,68 +262,19 @@
                     "properties": {
                         "publicAccess": "Container"
                     }
+                },
+                {
+                    "name": "[concat('default/', variables('storageProductsContainerName'))]",
+                    "type": "blobServices/containers",
+                    "apiVersion": "2019-04-01",
+                    "dependsOn": [
+                        "[variables('storageAccountName')]"
+                    ],
+                    "properties": {
+                        "publicAccess": "Container"
+                    }
                 }
             ]
-        },
-        {
-        "type": "Microsoft.CognitiveServices/accounts",
-        "apiVersion": "2017-04-18",
-        "name": "[variables('formRecognizerName')]",
-        "location": "[resourceGroup().location]",
-        "sku": {
-            "name": "S0"
-        },
-        "kind": "FormRecognizer",
-        "properties": {
-            "customSubDomainName": "[variables('formRecognizerName')]"
-        }
-        },
-        {
-        "apiVersion": "2015-08-01",
-        "type": "Microsoft.Web/sites",
-        "name": "[variables('functionAppName')]",
-        "location": "[resourceGroup().location]",
-        "kind": "functionapp",
-        "dependsOn": [
-            "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
-            "[resourceId('Microsoft.CognitiveServices/accounts', variables('formRecognizerName'))]"
-        ],
-        "properties": {
-            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-            "siteConfig": {
-            "appSettings": [
-                {
-                "name": "FUNCTIONS_EXTENSION_VERSION",
-                "value": "~2"
-                },
-                {
-                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                "value": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
-                },
-                {
-                "name": "FUNCTIONS_WORKER_RUNTIME",
-                "value": "[variables('functionWorkerRuntime')]"
-                },
-                {
-                "name": "FormRecognizedEndPoint",
-                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/', variables('formRecognizerName')), '2017-04-18').endpoint]"
-                },
-                {
-                "name": "FormRecognizedSubscriptionKey",
-                "value": "[variables('formRecognizedSubscriptionKey')]"
-                },
-                {
-                "name": "FormRecognizedTrainningDataUrl",
-                "value": "[variables('formRecognizedTrainningDataUrl')]"
-                },
-                {
-                "name": "FormRecognizedMinAccuracyAllowed",
-                "value": "[variables('formRecognizedMinAccuracyAllowed')]"
-                }
-            ]
-            }
-        }
         },
         {
         "apiVersion": "2018-05-01-preview",
