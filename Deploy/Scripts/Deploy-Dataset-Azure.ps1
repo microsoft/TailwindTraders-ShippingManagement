@@ -23,6 +23,7 @@ if (-not $container) {
 }
 
 $urlBlbsContainer = $storage.primaryEndpoints.blob + $containerName;
+$urlBlbsContainerProducts = $storage.primaryEndpoints.blob + $containerNameProducts;
 
 $accountName=$storage.name
 
@@ -34,7 +35,7 @@ az storage blob upload-batch --destination "$urlBlbsContainer" --source $(Join-P
 Write-Host "Images uploaded..."
 
 Write-Host "Uploading images to $containerNameProducts" -ForegroundColor Yellow
-az storage blob upload-batch --destination "$urlBlbsContainer" --source $(Join-Path tailwindtraders-files tailwindtraders-products) --account-name $storageName
+az storage blob upload-batch --destination "$urlBlbsContainerProducts" --source $(Join-Path tailwindtraders-files tailwindtraders-products) --account-name $storageName
 Write-Host "Images uploaded..."
 
 Pop-Location
