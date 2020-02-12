@@ -1,11 +1,11 @@
-## Post-Deploy Configuration
+# Post-Deploy Configuration for Power Apps and Connectors
 
 Once the deployment of the resources has finished, you will only need to configure a few settings.
 
-### Link Azure Function to Form recognizer
+## Link Azure Function to Form recognizer
 When the Form Recognizer resource is created, it generates a key that will be used in the Azure Function.
 
-##### Step 1: Get Form Recognizer key
+#### Step 1: Get Form Recognizer key
 - Go to Azure portal and access to Form Recognizer resource.
 - In the section Resource Management, go to option **Quick start**.
 - **Key1** value is the parameter that we will need to provide to the Azure Function.
@@ -15,7 +15,7 @@ When the Form Recognizer resource is created, it generates a key that will be us
 
 > Note: *Endpoint* parameter has been already set up in the function during the deployment process.
 
-##### Step 2: Set Form Recognizer key in Azure Function Settings
+#### Step 2: Set Form Recognizer key in Azure Function Settings
 - Go to Azure portal and access to Azure Function resource.
 - Go to tab **Platform features**.
 - In the section General Settings, go to option **Configuration**.
@@ -23,10 +23,10 @@ When the Form Recognizer resource is created, it generates a key that will be us
 
 ![Function Settings](../Images/FunctionSettings.png)
 
-### Set CosmosDb key in Logic App CosmosDb connection
+## Set CosmosDb key in Logic App CosmosDb connection
 When the CosmosDb resource is created, it generates a key that will be used in the Logic App connection.
 
-##### Step 1: Get CosmosDb key
+#### Step 1: Get CosmosDb key
 - Go to Azure portal and access to CosmosDb resource.
 - In the section Settings, go to option **Keys**.
 - **Primary Key** value is the parameter that we will need to provide to the connection.
@@ -34,12 +34,126 @@ When the CosmosDb resource is created, it generates a key that will be used in t
 ![CosmosDb Key](../Images/CosmosDbKey.png)
 
 
-##### Step 2: Set CosmosDb key in Logic App connection
+#### Step 2: Set CosmosDb key in Logic App connection
 - Go to Azure portal and access to connection resource, named **cosmosconnection**.
 - In the section General, go to option **Edi API connection**.
 - Set the key obtained in the previous section in the parameter **Access Key to your Azure Cosmos DB account**:
 
 ![Connection Settings](../Images/ConnectionSettings.png)
+
+# Deploy Power Apps
+You can import and configure the Power App and the connectors using the files under `\PowerApps` folder.
+
+> Note: You may want to create a new environment for deploy your Power App.
+In that case, use the steps detailed in this [link](https://docs.microsoft.com/en-us/power-platform/admin/create-environment).
+
+## Set custom connectors
+
+In order to import successfully the Power App, firstly we will need to create in the new environment our custom connectors. There's two custom connectors to configure and the file information are under the folder `\CustomConnectors`:
+- `TailwindTraders_ShippingMng.yml`.
+It has the connection configuration to connect with the Azure Function that analyze the picture and send model data back to the Power App.
+- `TailwindTraders_UpdateOrder.yml`.
+It has the connection configuration to connect with the Logic App that will store the new shipping order into CosmosDb.
+- `TailwindTraders_Orders.yml`.
+It has the connection configuration to connect with the Azure Search Service that is linked to the CosmosDb that contains Tailwind Traders orders.
+
+#### Create TailwindTraders_ShippingMng custom connector
+To create this custom connector you have to follow the next steps:
+- Go to [PowerApps Maker Portal](https://make.powerapps.com/).
+- Set the environment where you want to create your Power App and custom connectors.
+- Go to option **Data**, expand it and select **Custom connectors** option.
+- Select the option **New custom connector** > **Create from blank**.
+- Insert the name of the connector: `TailwindTraders_ShippingMng` and select **Continue**.
+- Go to **Swagger Editor**.
+- Open the file in the solution `TailwindTraders_ShippingMng.yml` and copy it into the editor.
+- We will need to modify some parameters:
+   ![Shipping Connector](./../Images/ShpManagement_Connector.png)
+   - In the parameter `host`, insert the value of your Azure Function base url without https.
+- Select **Create connector**.
+
+> Note: You can customize the icon and the color background of the connector using the tab General.
+
+#### Create TailwindTraders_UpdateOrder custom connector
+To create this custom connector you have to follow the next steps:
+- Go to [Power Apps Maker Portal](https://make.powerapps.com/).
+- Set the environment where you want to create your Power App and custom connectors.
+- Go to option **Data**, expand it and select **Custom connectors** option.
+- Select the option **New custom connector** > **Create from blank**.
+- Insert the name of the connector: `TailwindTraders_UpdateOrder` and select **Continue**.
+- Go to **Swagger Editor**.
+- Open the file in the solution `TailwindTraders_UpdateOrder.yml` and copy it into the editor.
+- We will need to modify some parameters based on the Logic App url that has been generated.
+For instance: https:/****.eastus.logic.azure.com**:443/workflows/**fe7142204bc0xxxxxxxxxxxxxxxxxxxxx**/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=**b0f0DCjfhM5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx**
+   ![Update Order Connector](./../Images/UpdateOrder_Connector.png)
+ - In the parameter `host`, insert the value of your Logic App base url without https.
+ - In the parameter `paths`, insert the value of your workflow Id related in the Logic App url.
+ - In `parameters`, the parameter `sig`, insert the value of the query parameter sig in the Logic App url.
+- Select **Create connector**.  
+> Note: You can customize the icon and the color background of the connector using the tab General.
+
+#### Create TailwindTraders_Orders custom connector
+To create this custom connector you need to have to follow the next steps:
+
+##### Step 1: Get Azure Search Service Key
+- Go to Azure portal and access to Azure Search Service resource.
+- In the section Settings, go to option **Keys**.
+- **Primary admin key** value is the parameter that we will need to provide to the custom connector header.
+![Azure Search Service Key](./../Images/AzureSearchServiceKey.png)
+
+
+##### Step 2: Setup the connector
+- Go to [PowerApps Maker Portal](https://make.powerapps.com/).
+- Set the environment where you want to create your Power App and custom connectors.
+- Go to option **Data**, expand it and select **Custom connectors** option.
+- Select the option **New custom connector** > **Create from blank**.
+- Insert the name of the connector: `TailwindTraders_Orders` and select **Continue**.
+- Go to **Swagger Editor**.
+- Open the file in the solution `TailwindTraders_Orders.yml` and copy it into the editor.
+- We will need to modify some parameters based on the Azure Search Service that has been generated:
+   ![Orders Connector](./../Images/Orders_Connector.png)
+ - In the parameter `host`, insert the value of your Azure Search Service base url without https.
+ - In the parameter `paths`, insert the name of your indexer.
+ - In `parameters`, the parameter `api-key`, insert the key of your Azure Search Service.
+- Select **Create connector**.  
+
+> Note: You can customize the icon and the color background of the connector using the tab General.
+
+
+## Import and set up Power App
+Once the custom connectors are configured we can import our Power App and configure the connectors within. The zip package containing the Power App is found under the folder `\Apps`.
+
+Follow the next steps to import and configure the custom connectors:
+- Go to [PowerApps Maker Portal](https://make.powerapps.com/).
+- Set the environment where you want to create your Power App and custom connectors.
+- Go to option **Apps**.
+- Go to option **Import canvas app**.
+- Upload the package zip of the Power App.
+
+Once the zip package has been uploaded, we should set up the connectors within the Power App:
+
+**Review Package Content**
+- Go to action option in section Review Package Content an define the action for the App Package.
+- In the option **Setup**, select **Create as new**.
+- Select **Save**.
+![Import App Setup](./../Images/Connector_SetUp_package.png)
+
+**Related resources**
+- Go to action option in section Related resources an define the action for the App Package.
+- Select the connection corresponding to ShippingMng (**TailwindTraders_ShippingMng**).
+- Select **Save**.
+![Shipping Mng Connector Setup](./../Images/Connector_SetUp_shippingmng.png)
+- Go to action option in section Related resources an define the action for the App Package.
+- Select the connection corresponding to Update Order (**TailwindTraders_UpdateOrder**).
+- Select **Save**.
+![Update Order Connector Setup](./../Images/Connector_SetUp_updateorder.png)
+- Go to action option in section Related resources an define the action for the App Package.
+- Select the connection corresponding to Orders (**TailwindTraders_Orders**).
+- Select **Save**.
+![Orders Connector Setup](./../Images/Connector_SetUp_orders.png)
+
+> Note: You can find official information in this [link](https://docs.microsoft.com/en-us/power-platform/admin/environment-and-tenant-migration#importing-an-app).
+
+Select **Import**. Note that action may take some time to finish.
 
 # Form Recognizer
 The behavior of Form Recognizer tries to find a model to analyze the image provided.

@@ -1,0 +1,104 @@
+swagger: '2.0'
+info: {title: TailwindTraders_Orders, description: Get orders from CosmosDb., version: '1.0'}
+host: tailwindtradershsspro.search.windows.net
+basePath: /
+schemes: [https]
+consumes: [application/json]
+produces: [application/json]
+paths:
+  /indexes/tailwindtraders-index/docs:
+    get:
+      responses:
+        default:
+          description: default
+          schema:
+            type: object
+            properties:
+              '@odata.context': {type: string, description: '@odata.context'}
+              value:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: {type: string, description: id}
+                    Reference: {type: string, description: Reference}
+                    Boxes: {type: integer, format: int32, description: Boxes, title: Boxes}
+                    Date: {type: string, description: Date}
+                    ReceivedBy: {type: string, description: ReceivedBy}
+                    Customer: {type: string, description: Customer}
+                    Amount: {type: integer, format: int32, description: Amount}
+                    Provider: {type: string, description: Provider}
+                    Location: {type: string, description: Location}
+                    LocationMatchs: {type: boolean, description: LocationMatchs}
+                    rid: {type: string, description: rid}
+                    Items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          HasPotentialErrors: {type: boolean, description: HasPotentialErrors}
+                          ID: {type: integer, format: int32, description: ID}
+                          Tags:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                name: {type: string, description: name}
+                                confidence: {type: number, format: float, description: confidence}
+                            description: Tags
+                          VisualDetail:
+                            type: object
+                            properties:
+                              tags:
+                                type: array
+                                items: {type: string}
+                                description: tags
+                              captions:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    text: {type: string, description: text}
+                                    confidence: {type: number, format: float, description: confidence}
+                                description: captions
+                            description: VisualDetail
+                          Amount:
+                            type: object
+                            properties:
+                              Accuracy: {type: number, format: float, description: Accuracy}
+                              Value: {type: string, description: Value}
+                            description: Amount
+                          Description:
+                            type: object
+                            properties:
+                              Accuracy: {type: number, format: float, description: Accuracy}
+                              Value: {type: string, description: Value}
+                            description: Description
+                          Quantity:
+                            type: object
+                            properties:
+                              Accuracy: {type: number, format: float, description: Accuracy}
+                              Value: {type: string, description: Value}
+                            description: Quantity
+                          Reference:
+                            type: object
+                            properties:
+                              Accuracy: {type: number, format: float, description: Accuracy}
+                              Value: {type: string, description: Value}
+                            description: Reference
+                      description: Items
+                description: value
+      summary: Get
+      operationId: Get
+      parameters:
+      - {name: api-version, in: query, required: true, type: string, default: '2019-05-06',
+        x-ms-visibility: internal}
+      - {name: search, in: query, required: false, type: string, default: '*'}
+      - {name: api-key, in: header, required: true, type: string, default: 1409FB3C35E287A596BDD264625A903D,
+        x-ms-visibility: internal}
+definitions: {}
+parameters: {}
+responses: {}
+securityDefinitions: {}
+security: []
+tags: []

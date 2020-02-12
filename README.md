@@ -6,6 +6,17 @@ The goal of the app is to upload a packaging slip document using the Power Apps,
 
 # Repositories
 
+For this demo reference, we built several consumer and line-of-business applications and a set of backend services. You can find all repositories in the following locations:
+
+- [Tailwind Traders](https://github.com/Microsoft/TailwindTraders)
+- [Backend (AKS)](https://github.com/Microsoft/TailwindTraders-Backend)
+- [Website (ASP.NET & React)](https://github.com/Microsoft/TailwindTraders-Website)
+- [Desktop (WinForms & WPF -.NET Core)](https://github.com/Microsoft/TailwindTraders-Desktop)
+- [Rewards (ASP.NET Framework)](https://github.com/Microsoft/TailwindTraders-Rewards)
+- [Mobile (Xamarin Forms 4.0)](https://github.com/Microsoft/TailwindTraders-Mobile)
+
+# Table of contents
+
 In this repository we will find different solutions:
 
 - Power Apps zip package solution.
@@ -13,27 +24,21 @@ In this repository we will find different solutions:
 - Azure Function Code (Scan code and Custom Skill for Azure Search)
 - Deploy section, containing the Deploy solution and the ARM templates of the resources used.
 
-## Before you begin
+# Before you begin
 
 You will need to set up some features before deploy the solution to Azure:
 
 1. You will need an Azure Subscription in order to follow this demo script.
-2. Tailwind Traders App Management source code.
-3. Form Recognizer Access.
-4. Azure CLI. [Information](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest).
-5. PowerShell.
-
-> Note:  In the time of writing Form Recognizer is still in preview. In order to deploy the solution or the resource individually you will need to request access previously. You can see the detailed information of Form Recognizer in this [link](https://azure.microsoft.com/en-us/services/cognitive-services/form-recognizer/).
-Also you can request access to the resource in this [link](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbRyj5DlT4gqZKgEsfbkRQK5xUMjZVRU02S1k4RUdLWjdKUkNRQVRRTDg1NC4u).
+1. You will need a [Power Apps account](https://powerapps.microsoft.com/en-us/) with P2 license or trial. 
+1. Tailwind Traders App Management source code.
+1. Azure CLI. [Information](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest).
+1. PowerShell.
 
 Additionally, in order to debug the Azure Function you will need:
 1. You will need Visual Studio 2017 or later. Also, you can use VS Code if you have it.
 
 # Deployment scenarios
 
-## Import Power App 
-
-To import the Power App you will need to follow [this guide](https://docs.microsoft.com/en-us/power-platform/admin/environment-and-tenant-migration#importing-an-app).
 
 ## Deploy using one script
 You can deploy the scenario using one script under `/Deploy` folder.
@@ -66,8 +71,8 @@ The deployment will configure the logic app connection, will publish the assets 
 
 Once the deployment of the resources has finished, you will only need to configure a few settings. Following the next docs files you'll achieve the final solution:
 
- 1. ### [Power Apps Documentation](./Documents/docs/powerapp.md)
- 2. ### [Azure Search Documentation](./Documents/docs/azsearch.md)
+ 1. ### [Power Apps and custom connectors next steps](./Documents/docs/powerapp.md)
+ 2. ### [Azure Search configuration](./Documents/docs/azsearch.md)
 
 ## Contributing
 
