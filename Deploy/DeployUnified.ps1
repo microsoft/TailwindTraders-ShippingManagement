@@ -15,14 +15,19 @@ az account set --subscription $subscription
 Push-Location $($MyInvocation.InvocationName | Split-Path)
 Push-Location Scripts
 
-& ./Deploy-ARMs.ps1 -resourceGroup $resourceGroup -location $location -resourcePrefixName $resourcePrefixName
+& ./Deploy-ARM.ps1 -resourceGroup $resourceGroup -location $location -resourcePrefixName $resourcePrefixName
 
 $storageName = $(az resource list --resource-group $resourceGroup --resource-type Microsoft.Storage/storageAccounts -o json | ConvertFrom-Json)[0].name
 $containerName = "$resourcePrefixName-trainmodel"
 $containerNameProducts = "$resourcePrefixName-products"
 $appFunctionName = $(az resource list --resource-group $resourceGroup --resource-type Microsoft.Web/sites -o json | ConvertFrom-Json)[0].name
 
-& ./Deploy-Publish-Content.ps1 -resourceGroup $resourceGroup -storageName $storageName -containerName $containerName -containerNameProducts $containerNameProducts -appFunctionName $appFunctionName
+echo "Storage Name :  $storageName"
+echo "Container Name :  $containerName"
+echo "Container Name Products:  $containerNameProducts"
+echo "App Function Name:  $appFunctionName"
+
+& ./Deploy-Publish-Content.ps1 -resourceGroup $resourceGroup -storageName $storageName -containerName $containerName -appFunctionName $appFunctionName
 
 Pop-Location
 Pop-Location

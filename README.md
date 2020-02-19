@@ -45,13 +45,13 @@ You can deploy the scenario using one script under `/Deploy` folder.
 Running the following command you can deploy starting with the infrastructure and ending with deploying the images on the storage:
 
 ```
-.\Deploy-Unified.ps1 -resourceGroup <resource-group-name> -location <location> -clientId <service-principal-id> -password <service-principal-password> -subscription <subscription-id> -prefixName <prefix-name>
+.\DeployUnified.ps1 -resourceGroup <resource-group-name> -location <location> - -subscription <subscription-id> -resourcePrefixName <resource-prefix-name>
 ```
 
 - `resourceGroup`: The name of your resource group where all infrastructure will be created `Required`
 - `location`: Select where you want to create your resource group. (i.e., East US) `Required`
 - `subscription`: Id of your subscription where you are going to deploy your resource group `Required`
-- `prefixName`: The name to refer the resources to be deployed. It will be composed with the following format: *prefixname-resourcetype-resourceGroupNameEncoded* (i.e., if you enter as a prefix name: tailwind, Azure Function resource name will become: *tailwindfunction12875156*). `Required`
+- `resourcePrefixNameName`: The name to refer the resources to be deployed. It will be composed with the following format: *prefixname-resourcetype-resourceGroupNameEncoded* (i.e., if you enter as a prefix name: tailwind, Azure Function resource name will become: *tailwindfunction12875156*). `Required`
 
 The resources that will be deployed are:
 - Azure Function.
