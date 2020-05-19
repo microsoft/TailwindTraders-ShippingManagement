@@ -67,7 +67,7 @@ namespace TailwindTraders.ShippingManagement.Services
         private WrapForm ReadJson()
         {
             var home = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
-            var folder = home != null ? Path.Combine(home, @"site\wwwroot\") : Environment.CurrentDirectory;
+            var folder = home != null ? Path.Combine(home, "site", "wwwroot") : Environment.CurrentDirectory;
             var filePath = Path.Combine(folder, C_WrapFileName);
             var json = File.ReadAllText(filePath);
 
