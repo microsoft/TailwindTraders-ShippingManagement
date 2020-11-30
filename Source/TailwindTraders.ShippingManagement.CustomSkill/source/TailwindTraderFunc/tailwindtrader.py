@@ -12,8 +12,7 @@ class TailwindTraders():
     def __init__(self, req):
         self._settings = Settings()
         self._cs = CognitiveServices()
-        self._storage = BlobStorageService(self._settings.get_storage_account(),
-                                        self._settings.get_storage_key())
+        self._storage = BlobStorageService(self._settings.get_storage_connection_string())
         self._reqbody = req.get_json()
 
     def readRequest(self):
