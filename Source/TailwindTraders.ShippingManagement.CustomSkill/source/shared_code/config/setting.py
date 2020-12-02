@@ -11,11 +11,8 @@ class Settings:
         with open('./shared_code/config/settings.json') as file:
             return json.load(file)
     
-    def get_storage_account(self):
-        return os.environ.get("STORAGE_ACCOUNTNAME", self.__from_config("STORAGE_ACCOUNTNAME"))
-
-    def get_storage_key(self):
-        return os.environ.get("STORAGE_KEY", self.__from_config("STORAGE_KEY"))
+    def get_storage_connection_string(self):
+        return os.environ.get("STORAGE_CONNECTION_STRING", self.__from_config("STORAGE_CONNECTION_STRING"))
     
     def get_storage_container_name(self):
         return os.environ.get("STORAGE_CONTAINER_NAME", self.__from_config("STORAGE_CONTAINER_NAME"))
