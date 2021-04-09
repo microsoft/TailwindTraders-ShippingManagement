@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Microsoft.Azure.CognitiveServices.FormRecognizer.Models;
+using Azure.AI.FormRecognizer.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -26,20 +26,20 @@ namespace TailwindTraders.ShippingManagement.Services
             _settings = settings.Value;
         }
 
-        public PackagingSlip Parse(AnalyzeResult result)
+        public PackagingSlip Parse(RecognizedFormCollection result)
         {
             try
             {
-                if (result.Pages.Any())
+                if (result.Count > 0)
                 {
                     _wrap = ReadJson();
                     _model = new PackagingSlip();
                     _model.ID = Guid.NewGuid().ToString();
 
-                    ParseHeader(result.Pages.First());
+                    ParseHeader(result.First());
                     List<Item> items = new List<Item>();
 
-                    foreach (var page in result.Pages)
+                    foreach (var page in result)
                     {
                         items.AddRange(ParseItems(page));
                     }
@@ -74,27 +74,27 @@ namespace TailwindTraders.ShippingManagement.Services
             return JsonConvert.DeserializeObject<WrapForm>(json);
         }
 
-        private void ParseHeader(ExtractedPage page)
+        private void ParseHeader(RecognizedForm page)
         {
             foreach (var header in _wrap.Keys)
             {
-                if (page.KeyValuePairs.Any(c => c.Key[header.KeyPos].Text == header.Key))
+                if (page.Fields.Any(c => c.Key[header.KeyPos].ToString() == header.Key))
                 {
-                    var kv = page.KeyValuePairs.Where(c => c.Key[header.KeyPos].Text == header.Key).First();
+                    var kv = page.Fields.Where(c => c.Key[header.KeyPos].ToString() == header.Key).First();
 
-                    if (kv.Value.Any())
+                    if (kv.Value != null)
                     {
                         switch (header.Type)
                         {
                             case "int":
-                                _model.SetProperty(header.Property, int.TryParse(kv.Value[header.KeyValue].Text, out int n) ? n : default);
+                                _model.SetProperty(header.Property, int.TryParse(kv.Value.ValueData.Text, out int n) ? n : default);
                                 break;
                             case "decimal":
-                                _model.SetProperty(header.Property, decimal.TryParse(kv.Value[header.KeyValue].Text, out decimal d) ? d : default);
+                                _model.SetProperty(header.Property, decimal.TryParse(kv.Value.ValueData.Text, out decimal d) ? d : default);
                                 break;
                             case "string":
                             default:
-                                _model.SetProperty(header.Property, kv.Value[header.KeyValue].Text);
+                                _model.SetProperty(header.Property, kv.Value.ValueData.Text);
                                 break;
                         }
                     }
@@ -102,38 +102,33 @@ namespace TailwindTraders.ShippingManagement.Services
             }
         }
 
-        private List<Item> ParseItems(ExtractedPage page, int numTable = 0)
+        private List<Item> ParseItems(RecognizedForm page, int numTable = 0)
         {
             List<Item> items = new List<Item>();
 
-            foreach (var t in page.Tables)
+            foreach (var t in page.Pages.First().Tables)
             {
                 ProvisioningItems(t, items);
 
-                foreach (var c in t.Columns)
-                {
+                foreach (var c in t.Cells) {
                     var index = 0;
-                    foreach (var e in c.Entries)
-                    {
-                        Item item = items[index];
-                        item.ID = index;
+                    Item item = items[index];
+                    item.ID = index;
 
-                        foreach (var ee in e)
+                        ItemProperty itemProp = new ItemProperty()
                         {
-                            ItemProperty itemProp = new ItemProperty()
-                            {
-                                Value = ee.Text,
-                                Accuracy = ee.Confidence.HasValue ? (double)ee.Confidence : 0
-                            };
+                            Value = c.Text,
+                            Accuracy = String.IsNullOrEmpty(c.Confidence.ToString()) ? (double)c.Confidence : 0
+                        };
 
-                            var header = _wrap.Tables[numTable].Headers.Where(h => h.Key == c.Header[0].Text).FirstOrDefault();
+                        var header = _wrap.Tables[numTable].Headers.Where(h => h.Key == c.Text).FirstOrDefault();
 
-                            if (header != null)
-                                item.SetProperty(header.Property, itemProp);
-                        }
+                        if (header != null)
+                            item.SetProperty(header.Property, itemProp);
 
-                        index++;
-                    }
+
+                    index++;
+                  
                 }
             }
 
@@ -184,16 +179,13 @@ namespace TailwindTraders.ShippingManagement.Services
                 }
             }
         }
-        private void ProvisioningItems(ExtractedTable table, List<Item> items)
+        private void ProvisioningItems(FormTable table, List<Item> items)
         {
             int maxitems = 0;
-
-            foreach (var c in table.Columns)
+ 
+            if (table.Cells.Count > maxitems)
             {
-                if (c.Entries.Count > maxitems)
-                {
-                    maxitems = c.Entries.Count;
-                }
+                maxitems = table.Cells.Count;
             }
 
             for (var i = 0; i < maxitems; i++)

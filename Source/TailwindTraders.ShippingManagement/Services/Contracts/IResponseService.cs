@@ -1,11 +1,11 @@
-﻿using Microsoft.Azure.CognitiveServices.FormRecognizer.Models;
+﻿using Azure.AI.FormRecognizer.Models;
 using TailwindTraders.ShippingManagement.Models;
 
 namespace TailwindTraders.ShippingManagement.Services.Contracts
 {
     public interface IResponseService
     {
-        PackagingSlip Parse(AnalyzeResult result);
+        PackagingSlip Parse(RecognizedFormCollection result);
 
         bool ChecksLocation(string requestLocation);
     }
