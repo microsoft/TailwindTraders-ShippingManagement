@@ -118,7 +118,7 @@ namespace TailwindTraders.ShippingManagement.Services
                         ItemProperty itemProp = new ItemProperty()
                         {
                             Value = c.Text,
-                            Accuracy = String.IsNullOrEmpty(c.Confidence.ToString()) ? (double)c.Confidence : 0
+                            Accuracy = String.IsNullOrEmpty(c.Confidence.ToString()) ? 0 : (double)c.Confidence
                         };
 
                         var header = _wrap.Tables[numTable].Headers.Where(h => h.Key == c.Text).FirstOrDefault();
