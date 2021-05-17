@@ -39,7 +39,7 @@ namespace TailwindTraders.ShippingManagement.Services
                 {
                     CustomFormModel result = await _formTrainingClient.StartTrainingAsync(new Uri(_settings.FormRecognizedTrainningDataUrl), useTrainingLabels: false).WaitForCompletionAsync();
 
-                    CustomFormModel model = await _formTrainingClient.GetCustomModelAsync(result.ModelId);
+                    await _formTrainingClient.GetCustomModelAsync(result.ModelId);
 
                     return result.ModelId;
                 }
@@ -51,31 +51,7 @@ namespace TailwindTraders.ShippingManagement.Services
             return null;
         }
 
-        private async Task<string> GetLastModelIDAsync()
-        {
-            try
-            {
-                IAsyncEnumerator<CustomFormModelInfo> models = _formTrainingClient.GetCustomModelsAsync().GetAsyncEnumerator();
-                if (models.Current == null || !(await models.MoveNextAsync() && await models.MoveNextAsync()))
-                {
-                    for (var i = 0; i < C_MinNumTrainning; i++)
-                    {
-                        await TrainModelAsync();
-                    }
-
-                    models = _formTrainingClient.GetCustomModelsAsync().GetAsyncEnumerator();
-                }
-
-                return models.Current.ModelId;
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public async Task<RecognizedFormCollection> AnalyzeAsync(string fileMimeType, Stream fileStream)
+        public async Task<RecognizedFormCollection> AnalyzeAsync(Stream fileStream)
         {
 
             if (fileStream == null || fileStream.Length == 0)
@@ -85,7 +61,7 @@ namespace TailwindTraders.ShippingManagement.Services
 
             try
             {
-                string modelId = await GetLastModelIDAsync();
+                string modelId = await TrainModelAsync();
                 return (modelId != null) ? await _formTrainingClient.GetFormRecognizerClient().StartRecognizeCustomFormsAsync(modelId, fileStream).WaitForCompletionAsync() : null;
             }
             catch (Exception ex)

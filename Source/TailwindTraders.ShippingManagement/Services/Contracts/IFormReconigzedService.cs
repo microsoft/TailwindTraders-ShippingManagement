@@ -7,6 +7,6 @@ namespace TailwindTraders.ShippingManagement.Services.Contracts
 {
     public interface IAnalysisService
     {
-        Task<RecognizedFormCollection> AnalyzeAsync(string fileContentType, Stream fileStream);
+        Task<RecognizedFormCollection> AnalyzeAsync(Stream fileStream);
     }
 }
