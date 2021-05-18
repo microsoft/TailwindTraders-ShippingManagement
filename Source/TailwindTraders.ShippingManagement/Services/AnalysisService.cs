@@ -38,9 +38,6 @@ namespace TailwindTraders.ShippingManagement.Services
                 try
                 {
                     CustomFormModel result = await _formTrainingClient.StartTrainingAsync(new Uri(_settings.FormRecognizedTrainningDataUrl), useTrainingLabels: false).WaitForCompletionAsync();
-
-                    await _formTrainingClient.GetCustomModelAsync(result.ModelId);
-
                     return result.ModelId;
                 }
                 catch (Exception)
