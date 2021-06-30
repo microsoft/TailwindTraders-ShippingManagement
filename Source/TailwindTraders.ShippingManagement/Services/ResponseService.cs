@@ -152,7 +152,7 @@ namespace TailwindTraders.ShippingManagement.Services
                 {
                     ItemProperty prop = item.GetProperty<ItemProperty>(header.Property);
 
-                    if (!item.HasPotentialErrors && !string.IsNullOrEmpty(prop.Value))
+                    if (!item.HasPotentialErrors && !string.IsNullOrEmpty(prop?.Value))
                     {
                         switch (header.Type)
                         {
