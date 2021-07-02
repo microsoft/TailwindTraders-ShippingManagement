@@ -78,9 +78,10 @@ namespace TailwindTraders.ShippingManagement.Services
         {
             foreach (var header in _wrap.Keys)
             {
-                if (page.Fields.Any(c => c.Key[header.KeyPos].ToString() == header.Key))
+                
+                if (page.Fields.Any(c => c.Value.LabelData.Text == header.Key))
                 {
-                    var kv = page.Fields.Where(c => c.Key[header.KeyPos].ToString() == header.Key).First();
+                    var kv = page.Fields.Where(c => c.Value.LabelData.Text == header.Key).First();
 
                     if (kv.Value != null)
                     {
