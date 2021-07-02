@@ -45,8 +45,7 @@ namespace TailwindTraders.ShippingManagement
 
                 using (FileStream fStream = new FileStream(tempFilePath, FileMode.Open))
                 {
-                    var fileMimeType = _svcRequest.GetMimeTypeFromFilePath(tempFilePath);
-                    var analyzeResult = await _svcAnalisys.AnalyzeAsync(fileMimeType, fStream);
+                    var analyzeResult = await _svcAnalisys.AnalyzeAsync(fStream);
                     if (analyzeResult != null)
                     {
                         model = _svcResponse.Parse(analyzeResult);
