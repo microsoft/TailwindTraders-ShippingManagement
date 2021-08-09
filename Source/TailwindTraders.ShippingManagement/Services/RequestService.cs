@@ -21,8 +21,7 @@ namespace TailwindTraders.ShippingManagement.Services
         {
             using (StreamReader reader = new StreamReader(streamBody))
             {
-                Request = JsonConvert.DeserializeObject<Request>(reader.ReadToEnd());
-                
+                Request = JsonConvert.DeserializeObject<Request>(reader.ReadToEndAsync().Result);                
                 if (!string.IsNullOrEmpty(Request.Source))
                 {
                     string parseFile = ParseFile(Request.Source);
